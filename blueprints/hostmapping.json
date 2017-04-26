@@ -1,0 +1,22 @@
+{
+"blueprint" : "multinode-hdp",
+"default_password" : "hadoop",
+"host_groups" :[
+  {
+  "name" : "node0",
+  "hosts" : [
+  {
+  "fqdn" : "ambari-node-0.local"
+  }
+  ]
+  },
+  {
+  "name" : "node1",
+  "hosts" : [
+  {
+  "fqdn" : "ambari-node-1.local"
+  }
+  ]
+  }
+]
+}

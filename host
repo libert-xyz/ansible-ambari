@@ -1,0 +1,12 @@
+[ambari-server]
+54.89.18.202 ansible_user=ubuntu ansible_private_key_file="~/Downloads/myAws.pem"
+
+[ambari-server:vars]
+nodesfile=nodes-ip
+
+[ambari-nodes]
+54.163.214.17 ansible_user=ubuntu ansible_private_key_file="~/Downloads/myAws.pem"
+54.159.120.48 ansible_user=ubuntu ansible_private_key_file="~/Downloads/myAws.pem" 
+
+[ambari-nodes:vars]
+nodesfile=nodes-ip

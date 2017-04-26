@@ -1,0 +1,7 @@
+nodes:
+  - hostname: ambari-server.local
+    ip: 10.10.4.60
+  - hostname: ambari-node-0.local
+    ip: 10.10.4.235
+  - hostname: ambari-node-1.local
+    ip: 10.10.4.252

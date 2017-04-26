@@ -1,0 +1,15 @@
+---
+- name: Instal ambari server
+  hosts: ambari-server
+  become: yes
+  become_user: root
+  roles:
+    - common
+    - ambariServer
+
+- name: Install ambari nodes
+  hosts: ambari-nodes
+  become: yes
+  become_user: root
+  roles:
+    - common

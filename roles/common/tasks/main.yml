@@ -1,0 +1,65 @@
+---
+- include_vars: "{{ nodesfile }}"
+
+- name: ammbari repository
+  get_url:
+    url: "{{ ambari_repo }}"
+    dest: /etc/apt/sources.list.d/ambari.list
+
+- name: add key
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: B9733A7A07513CAD
+
+- name: Install apitude
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+  with_items:
+    - python-minimal
+    - aptitude
+    - ntp
+
+- name: update and upgrade apt packages
+  apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: "{{ apt_cache_valid_time }}"
+
+- name: ntp service
+  service:
+    name: ntp
+    state: started
+
+- name: Install ambari agent
+  apt:
+    name: ambari-agent
+    state: present
+    update_cache: yes
+
+- name: ambari agent start
+  service:
+    name: ambari-agent
+    state: started
+
+- name: Add SSH authorized key
+  authorized_key:
+    user: ubuntu
+    key: "{{ lookup('file', '../templates/id_rsa.pub') }}"
+
+- name: Build hosts file
+  lineinfile:
+    dest: /etc/hosts
+    regexp: "{{ item.ip }}"
+    line: "{{ item.ip }} {{ item.hostname }}"
+    state: present
+  with_items: "{{ nodes }}"
+
+- name: Configure Ambari agent to register at Ambari server
+  lineinfile:
+    dest: /etc/ambari-agent/conf/ambari-agent.ini
+    regexp: "hostname=.*"
+    line: 'hostname=ambari-server.local'
+    state: present

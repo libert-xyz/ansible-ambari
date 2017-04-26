@@ -1,0 +1,67 @@
+---
+
+- name: Copy private key into place
+  template:
+    src: id_rsa
+    dest: "/home/ubuntu/.ssh/id_rsa"
+    owner: "ubuntu"
+    group: "ubuntu"
+    mode: 0600
+
+- name: prepare known_hosts entries
+  shell: ssh-keyscan -t rsa "{{ item.hostname }}"
+  with_items: "{{ nodes }}"
+  register: keyscans
+
+- name: prepare known_hosts
+  lineinfile:
+    dest: "/home/ubuntu/.ssh/known_hosts"
+    create: yes
+    state: present
+    line: "{{ item.stdout }}"
+    regexp: "^{{ item.item.hostname }}"
+    owner: "ubuntu"
+    group: "ubuntu"
+  with_items: "{{ keyscans.results }}"
+
+- name: prepare known_hosts entries
+  shell: ssh-keyscan -t rsa 0.0.0.0
+  register: keyscan_0_0_0_0
+
+- name: add 0.0.0.0 to known_hosts for secondary namenode
+  lineinfile:
+    dest: "/home/ubuntu/.ssh/known_hosts"
+    create: yes
+    state: present
+    line: "{{ keyscan_0_0_0_0.stdout }}"
+    regexp: "^0.0.0.0"
+    owner: "ubuntu"
+    group: "ubuntu"
+
+
+### Install Ambari Server
+
+- name: Install ambari server
+  apt:
+    name: ambari-server
+    state: present
+    update_cache: yes
+
+#Idempotent -s
+- name: Setup ambari server
+  command: ambari-server setup -s
+
+
+- name: ambari server start
+  service:
+    name: ambari-server
+    state: started
+
+
+# # Create a 2048-bit SSH key for user user in ~user/.ssh/id_rsa
+# - name: Create a 2048-bit SSH key for user user in ~user/.ssh/id_rsa
+#   user:
+#     name: ubuntu
+#     generate_ssh_key: yes
+#     ssh_key_bits: 2048
+#     ssh_key_file: .ssh/id_rsa
